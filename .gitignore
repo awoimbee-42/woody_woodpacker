@@ -1,0 +1,7 @@
+build/
+ft_ssl
+*.exe
+vgcore*
+woody_woodpacker
+a.out
+.vscode
