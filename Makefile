@@ -6,7 +6,7 @@
 #    By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/26 22:06:19 by marvin            #+#    #+#              #
-#    Updated: 2020/03/12 18:26:23 by awoimbee         ###   ########.fr        #
+#    Updated: 2020/04/13 16:24:52 by awoimbee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -18,8 +18,9 @@ NAME := woody_woodpacker
 
 CFLAGS := -g3 -Wall -Wextra #-Werror -fno-builtin
 
+SRC_NAME = ingester.c
 
-SRC_NAME = $(shell cd src && find . -type f -name "*.c")
+WOODY_SRC_NAME = launcher.c self_size.c
 
 SRC_SUBFOLDERS = $(shell cd src && find . -type d)
 
@@ -38,9 +39,9 @@ else ifeq ($(UNAME_S),Darwin)
 endif
 
 CC = gcc
-LDLIBS = -lft
-LDFLAGS = -L./libft
-CFLAGS += -MMD -I./src -I./libft
+LDLIBS =
+LDFLAGS =
+CFLAGS += -MMD -I./src
 
 SRC_FOLDERS =	$(SRC_SUBFOLDERS)
 
@@ -48,25 +49,25 @@ REPO_PATH = $(patsubst %/,%,$(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
 BUILD_PATH = $(REPO_PATH)/$(BUILD_FOLDER)
 SRC_PATH =	src
 OBJ_FOLDER = $(BUILD_FOLDER)/obj
-LFT = libft/libft.a
 
 OBJ = $(addprefix $(OBJ_FOLDER)/, $(SRC_NAME:.c=.c.o))
+
+OBJ_WOODY = $(addprefix $(OBJ_FOLDER)/, $(WOODY_SRC_NAME:.c=.c.o))
 
 ################################################################################
 #################                  RULES                       #################
 ################################################################################
-all : $(LFT)
+all :
 	@$(MAKE) -j$(NUMPROC) $(NAME) --no-print-directory
 
-############## LIBS ############
-$(LFT) :
-	@printf "$(YLW)Making libft...$(EOC)\n"
-	@$(MAKE) -j$(NUMPROC) -s -C libft/
-################################
-
-$(NAME) : $(LFT) $(OBJ)
+woody: $(OBJ_WOODY)
 	@printf "$(GRN)Linking $@...$(EOC)\n"
-	$(CC) $(CFLAGS) $(OBJ) -o $@ $(LDFLAGS) $(LDLIBS)
+	$(CC) $(CFLAGS) $(OBJ_WOODY) -o $(OBJ_FOLDER)/$@ $(LDFLAGS) $(LDLIBS)
+	ld -r -b binary -o $(OBJ_FOLDER)/$@.o $(OBJ_FOLDER)/$@
+
+$(NAME) : woody $(OBJ)
+	@printf "$(GRN)Linking $@...$(EOC)\n"
+	$(CC) $(CFLAGS) $(OBJ) $(OBJ_FOLDER)/woody.o -o $@ $(LDFLAGS) $(LDLIBS)
 
 $(BUILD_FOLDER) :
 	@mkdir -p $(BUILD_PATH) 2> /dev/null | true
