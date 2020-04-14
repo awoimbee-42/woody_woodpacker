@@ -6,7 +6,7 @@
 #    By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/26 22:06:19 by marvin            #+#    #+#              #
-#    Updated: 2020/04/13 16:24:52 by awoimbee         ###   ########.fr        #
+#    Updated: 2020/04/14 10:27:07 by awoimbee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -60,12 +60,12 @@ OBJ_WOODY = $(addprefix $(OBJ_FOLDER)/, $(WOODY_SRC_NAME:.c=.c.o))
 all :
 	@$(MAKE) -j$(NUMPROC) $(NAME) --no-print-directory
 
-woody: $(OBJ_WOODY)
-	@printf "$(GRN)Linking $@...$(EOC)\n"
-	$(CC) $(CFLAGS) $(OBJ_WOODY) -o $(OBJ_FOLDER)/$@ $(LDFLAGS) $(LDLIBS)
-	ld -r -b binary -o $(OBJ_FOLDER)/$@.o $(OBJ_FOLDER)/$@
+$(OBJ_FOLDER)/woody: $(OBJ_WOODY)
+	# @printf "$(GRN)Linking $@...$(EOC)\n"
+	$(CC) $(CFLAGS) $(OBJ_WOODY) -o $@ $(LDFLAGS) $(LDLIBS)
+	ld -r -b binary -o $@.o $@
 
-$(NAME) : woody $(OBJ)
+$(NAME) : $(OBJ_FOLDER)/woody $(OBJ)
 	@printf "$(GRN)Linking $@...$(EOC)\n"
 	$(CC) $(CFLAGS) $(OBJ) $(OBJ_FOLDER)/woody.o -o $@ $(LDFLAGS) $(LDLIBS)
 
@@ -98,8 +98,6 @@ obj_clean :
 clean :
 	@printf "$(RED)Cleaning $(BUILD_FOLDER)$(EOC)\n"
 	@rm -rf $(BUILD_FOLDER)
-	@printf "$(YLW)Cleaning libft...$(EOC)\n"
-	@make -s fclean -C libft
 
 fclean : clean
 	@printf "$(RED)Cleaning $(NAME) & $(ASM)$(EOC)\n"

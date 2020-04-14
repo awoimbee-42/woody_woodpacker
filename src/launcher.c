@@ -6,7 +6,7 @@
 /*   By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/03/29 16:03:48 by awoimbee          #+#    #+#             */
-/*   Updated: 2020/04/13 16:23:24 by awoimbee         ###   ########.fr       */
+/*   Updated: 2020/04/14 10:25:27 by awoimbee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,10 +26,11 @@
 
 uint8_t g_flag_woody[] = "VOODPACK";
 
-void error(const char *s)
+void __attribute__ ((noreturn)) error(const char *s)
 {
 	fprintf(stderr, "Woody error: %s\n", s);
 	syscall(SYS_exit, EXIT_FAILURE);
+	while (1);
 }
 
 int main(int argc, char *argv[], char *envp[])
@@ -39,7 +40,8 @@ int main(int argc, char *argv[], char *envp[])
 
 	int self_fd = syscall(SYS_open, argv[0], O_RDONLY);
 	if (self_fd == -1) {
-		error("Could not open self");
+		char *err; asprintf(&err, "Could not open self (%s)", argv[0]);
+		error(err);
 	}
 
 	struct stat st;
@@ -55,7 +57,7 @@ int main(int argc, char *argv[], char *envp[])
 	if (dat == MAP_FAILED) {
 		error("Could not mmap self");
 	}
-write(1, "find self size\n", 15);
+
 	uint64_t self_size = find_self_size((uint8_t*)dat, self_total_size);
 	if (self_size == 0) {
 		error("Couold not compute self size, no payload ?");
@@ -68,7 +70,7 @@ write(1, "find self size\n", 15);
 	}
 
 	printf("self_size: %lu\n", self_size);
-	printf("%s\n\n", &dat[self_size]);
+
 
 	if (write(tmp_file, dat + self_size + 8, inner_prog_size) != (ssize_t)inner_prog_size) {
 		error("Could not write to memfd");
