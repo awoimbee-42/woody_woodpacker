@@ -6,7 +6,7 @@
 #    By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/26 22:06:19 by marvin            #+#    #+#              #
-#    Updated: 2020/04/14 10:27:07 by awoimbee         ###   ########.fr        #
+#    Updated: 2020/04/17 18:35:22 by awoimbee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -20,7 +20,7 @@ CFLAGS := -g3 -Wall -Wextra #-Werror -fno-builtin
 
 SRC_NAME = ingester.c
 
-WOODY_SRC_NAME = launcher.c self_size.c
+WOODY_SRC_NAME = launcher.c self_size.c ft_memcpy.c
 
 SRC_SUBFOLDERS = $(shell cd src && find . -type d)
 
@@ -29,6 +29,12 @@ BUILD_FOLDER =	build
 ################################################################################
 ###############                  CONSTANTS                       ###############
 ################################################################################
+RED := \033[1;31m
+GRN := \033[1;32m
+YLW := \033[1;33m
+INV := \033[7m
+EOC := \033[0m
+
 UNAME_S := $(shell uname -s)
 ifeq ($(UNAME_S),Linux)
 	NUMPROC := $(shell grep -c ^processor /proc/cpuinfo)
@@ -57,8 +63,13 @@ OBJ_WOODY = $(addprefix $(OBJ_FOLDER)/, $(WOODY_SRC_NAME:.c=.c.o))
 ################################################################################
 #################                  RULES                       #################
 ################################################################################
+.PHONY: all
 all :
 	@$(MAKE) -j$(NUMPROC) $(NAME) --no-print-directory
+
+.PHONY: tests
+tests:
+	$(MAKE) -C tests/ all
 
 $(OBJ_FOLDER)/woody: $(OBJ_WOODY)
 	# @printf "$(GRN)Linking $@...$(EOC)\n"
@@ -91,27 +102,25 @@ $(OBJ_FOLDER)/%.cpp.o : $(SRC_PATH)/%.cpp | $(BUILD_FOLDER)/obj
 # The '-' makes it doesn't care if the file exists or not
 -include $(OBJ_NM:.o=.d) $(OBJ_OTOOL:.o=.d)
 
+.PHONY: obj_clean
 obj_clean :
 	@printf "$(RED)Cleaning $(OBJ_FOLDER)$(EOC)\n"
 	@rm -rf $(OBJ_FOLDER)
 
+.PHONY: clean
 clean :
 	@printf "$(RED)Cleaning $(BUILD_FOLDER)$(EOC)\n"
 	@rm -rf $(BUILD_FOLDER)
 
+.PHONY: fclean
 fclean : clean
 	@printf "$(RED)Cleaning $(NAME) & $(ASM)$(EOC)\n"
 	@rm -f $(NAME)
 	@rm -f $(ASM)
 
+.PHONY: sclean re sre
 sclean	:	obj_clean
 re		:	fclean		all
 sre		:	obj_clean		all
 
-.PHONY: all obj_clean clean fclean re sre
 
-RED = \033[1;31m
-GRN = \033[1;32m
-YLW = \033[1;33m
-INV = \033[7m
-EOC = \033[0m

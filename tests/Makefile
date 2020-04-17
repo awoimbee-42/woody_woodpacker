@@ -6,7 +6,7 @@
 #    By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/03/13 16:27:25 by awoimbee          #+#    #+#              #
-#    Updated: 2020/03/15 17:24:04 by awoimbee         ###   ########.fr        #
+#    Updated: 2020/04/17 18:12:57 by awoimbee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -14,15 +14,30 @@ ASM_SRC = $(shell cd src && find . -type f -name "*.asm")
 ASM_PROGS = $(addsuffix .exe,$(ASM_SRC))
 
 C_SRC = $(shell cd src && find . -type f -name "*.c")
-C_PROGS = $(addsuffix .exe,$(C_SRC))
+C_PROGS = $(addsuffix .exe, $(C_SRC))
 
 PROGS = $(ASM_PROGS) $(C_PROGS)
-STRIPPED_PROGS = $(addsuffix .stripped.exe,$(C_SRC)) $(addsuffix .stripped.exe,$(ASM_SRC))
+STRIPPED_PROGS = $(PROGS:.exe=.stripped.exe)
 
 test: all
-	for f in $(PROGS); do ../woody_woodpacker $$f; echo ""; done;
 
-all: $(ASM_PROGS) $(C_PROGS) $(STRIPPED_PROGS)
+
+	@for f in $(PROGS); \
+	do \
+		echo "Testing: $$f"; \
+		printf "....WOODY....\n" > out; \
+		./$$f >> out; \
+		../woody_woodpacker $$f; \
+		./woody > wout; \
+		diff out wout; \
+		echo ""; \
+	done
+	@rm woody
+
+../woody_woodpacker:
+	$(MAKE) -C ../
+
+all: $(ASM_PROGS) $(C_PROGS) $(STRIPPED_PROGS) ../woody_woodpacker test
 
 %.stripped.exe: %.exe
 	cp $< $@
@@ -33,13 +48,9 @@ all: $(ASM_PROGS) $(C_PROGS) $(STRIPPED_PROGS)
 
 %.asm.exe: %.asm.o
 	ld -m elf_x86_64 $< -o $@
-	cp $@ $@_stripped
-	strip $@_stripped
 
 %.c.exe: src/%.c
 	gcc $< -o $@
-	cp $@ $@_stripped
-	strip $@_stripped
 
 fclean:
 	rm $(ASM_PROGS) $(C_PROGS)

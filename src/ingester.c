@@ -6,7 +6,7 @@
 /*   By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/04/13 14:34:54 by awoimbee          #+#    #+#             */
-/*   Updated: 2020/04/13 18:46:34 by awoimbee         ###   ########.fr       */
+/*   Updated: 2020/04/17 18:18:23 by awoimbee         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,13 +56,13 @@ int main(int argc, char *argv[])
 	}
 	ssize_t in_size = st.st_size;
 
-	char *in_dat = mmap(NULL, in_size, PROT_READ, MAP_SHARED, in_fd, 0);
+	// char *in_dat = mmap(NULL, in_size, PROT_READ, MAP_PRIVATE, in_fd, 0);
 
-	// char *in_dat = mmap(NULL, in_size, PROT_WRITE | PROT_READ, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	// if (read(in_fd, in_dat, in_size) != in_size) {
-	// 	fprintf(stderr, "Error: Could not read requested file\n");
-	// 	return -1;
-	// }
+	char *in_dat = mmap(NULL, in_size, PROT_WRITE | PROT_READ, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
+	if (read(in_fd, in_dat, in_size) != in_size) {
+		fprintf(stderr, "Error: Could not read requested file\n");
+		return -1;
+	}
 
 	if (in_dat == MAP_FAILED) {
 		fprintf(stderr, "Failed to mmap\n");
