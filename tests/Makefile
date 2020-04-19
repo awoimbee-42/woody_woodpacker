@@ -6,7 +6,7 @@
 #    By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2020/03/13 16:27:25 by awoimbee          #+#    #+#              #
-#    Updated: 2020/04/17 18:12:57 by awoimbee         ###   ########.fr        #
+#    Updated: 2020/04/19 23:04:28 by awoimbee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,9 +19,9 @@ C_PROGS = $(addsuffix .exe, $(C_SRC))
 PROGS = $(ASM_PROGS) $(C_PROGS)
 STRIPPED_PROGS = $(PROGS:.exe=.stripped.exe)
 
-test: all
+all: $(PROGS) $(STRIPPED_PROGS)
 
-
+tests: all ../woody_woodpacker
 	@for f in $(PROGS); \
 	do \
 		echo "Testing: $$f"; \
@@ -37,8 +37,6 @@ test: all
 ../woody_woodpacker:
 	$(MAKE) -C ../
 
-all: $(ASM_PROGS) $(C_PROGS) $(STRIPPED_PROGS) ../woody_woodpacker test
-
 %.stripped.exe: %.exe
 	cp $< $@
 	strip $@
@@ -53,6 +51,6 @@ all: $(ASM_PROGS) $(C_PROGS) $(STRIPPED_PROGS) ../woody_woodpacker test
 	gcc $< -o $@
 
 fclean:
-	rm $(ASM_PROGS) $(C_PROGS)
+	rm $(PROGS) $(STRIPPED_PROGS)
 
 re: fclean all

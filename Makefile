@@ -6,7 +6,7 @@
 #    By: awoimbee <awoimbee@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2018/11/26 22:06:19 by marvin            #+#    #+#              #
-#    Updated: 2020/04/17 18:35:22 by awoimbee         ###   ########.fr        #
+#    Updated: 2020/04/20 00:23:03 by awoimbee         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,11 +16,11 @@
 
 NAME := woody_woodpacker
 
-CFLAGS := -g3 -Wall -Wextra #-Werror -fno-builtin
+CFLAGS := -Ofast -Wall -Wextra -march=native -fno-builtin # -Werror
 
-SRC_NAME = ingester.c
+SRC_NAME = ingester.c utils.c aes.c
 
-WOODY_SRC_NAME = launcher.c self_size.c ft_memcpy.c
+WOODY_SRC_NAME = launcher.c self_size.c ft_memcpy.c utils.c aes.c
 
 SRC_SUBFOLDERS = $(shell cd src && find . -type d)
 
@@ -69,11 +69,12 @@ all :
 
 .PHONY: tests
 tests:
-	$(MAKE) -C tests/ all
+	$(MAKE) -C tests/ tests
 
 $(OBJ_FOLDER)/woody: $(OBJ_WOODY)
 	# @printf "$(GRN)Linking $@...$(EOC)\n"
 	$(CC) $(CFLAGS) $(OBJ_WOODY) -o $@ $(LDFLAGS) $(LDLIBS)
+	strip $@
 	ld -r -b binary -o $@.o $@
 
 $(NAME) : $(OBJ_FOLDER)/woody $(OBJ)
@@ -100,7 +101,7 @@ $(OBJ_FOLDER)/%.cpp.o : $(SRC_PATH)/%.cpp | $(BUILD_FOLDER)/obj
 
 # Add rules written in .d files (by gcc -MMD)
 # The '-' makes it doesn't care if the file exists or not
--include $(OBJ_NM:.o=.d) $(OBJ_OTOOL:.o=.d)
+-include $(OBJ:.o=.d) $(OBJ_WOODY:.o=.d)
 
 .PHONY: obj_clean
 obj_clean :

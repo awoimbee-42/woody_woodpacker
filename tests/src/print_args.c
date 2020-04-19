@@ -1,43 +1,45 @@
+#include <syscall.h>
 #include <unistd.h>
 
-static char linebreak = '\n';
+static const char linebreak = '\n';
 
-void print_int(unsigned long i)
+static void print_int(unsigned long i, char sep)
 {
-	int len = 0;
-	for (unsigned long t = i; t != 0; t/=10, ++len);
-	char buf[len];
-	for (int j = 0; j < len; ++j) {
-		buf[len - j - 1] = i % 10 + '0';
+	char buf[20];
+	buf[19] = sep;
+	register size_t j = 0;
+	while (i || !j) {
+		buf[18 - j] = i % 10 + '0';
+		++j;
 		i /= 10;
 	}
-	write(1, buf, len);
-	write(1, &linebreak, 1);
+	++j;
+	syscall(SYS_write, 1, &buf[20 - j], j);
 }
 
-void print_str(char *s)
+static void print_str(char *s)
 {
-	int l;
-	for (l = 0; s[l]; ++l);
-	write(1, s, l);
-	write(1, &linebreak, 1);
+	register size_t l = 0;
+	for (; s[l]; ++l);
+	s[l++] = '\n';
+	syscall(SYS_write, 1, s, l);
 }
 
 int main(int argc, char *argv[], char *envp[])
 {
-	print_int((unsigned long)&argc);
-	print_int((unsigned long)argv);
-	print_int((unsigned long)envp);
+	// print_int((unsigned long)&argc, '\n');
+	// print_int((unsigned long)argv, '\n');
+	// print_int((unsigned long)envp, '\n');
 
-	print_int(argc);
-	write(1, "\nargv:\n", 7);
+	print_int(argc, '\n');
+	syscall(SYS_write, 1, "\nargv:\n", 7);
 	for (; *argv; ++argv) {
-		print_int((unsigned long)*argv);
+		// print_int((unsigned long)*argv, '\t');
 		print_str(*argv);
 	}
-	write(1, "\nenvp:\n", 7);
+	syscall(SYS_write, 1, "\nenvp:\n", 7);
 	for (; *envp; ++envp) {
-		print_int((unsigned long)*envp);
+		// print_int((unsigned long)*envp, '\t');
 		print_str(*envp);
 	}
 }
