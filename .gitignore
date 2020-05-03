@@ -1,7 +1,8 @@
-build/
-ft_ssl
+/build/
 *.exe
 vgcore*
-woody_woodpacker
+/woody_woodpacker
+/woody
 a.out
 .vscode
+/tests/tmp*
