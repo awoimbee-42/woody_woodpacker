@@ -3,7 +3,7 @@
 
 static const char linebreak = '\n';
 
-static void print_int(unsigned long i, char sep)
+static void print_ulong(unsigned long i, char sep)
 {
 	char buf[20];
 	buf[19] = sep;
@@ -27,19 +27,16 @@ static void print_str(char *s)
 
 int main(int argc, char *argv[], char *envp[])
 {
-	// print_int((unsigned long)&argc, '\n');
-	// print_int((unsigned long)argv, '\n');
-	// print_int((unsigned long)envp, '\n');
-
-	print_int(argc, '\n');
+	print_ulong(argc, '\n');
 	syscall(SYS_write, 1, "\nargv:\n", 7);
-	for (; *argv; ++argv) {
-		// print_int((unsigned long)*argv, '\t');
+	while (*++argv) {
 		print_str(*argv);
 	}
 	syscall(SYS_write, 1, "\nenvp:\n", 7);
 	for (; *envp; ++envp) {
-		// print_int((unsigned long)*envp, '\t');
+		/* Don't print argv[0] */
+		if ((*envp)[0] == '_' && (*envp)[1] == '=')
+			continue;
 		print_str(*envp);
 	}
 }
